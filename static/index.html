@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>DC Monitor Pro</title>
+  <link rel="stylesheet" href="/static/css/app.css" />
+</head>
+<body>
+  <div id="loginView" class="login-wrap">
+    <div class="login-card">
+      <div style="text-align:center;margin-bottom:8px">
+        <div class="brand-logo" style="margin:0 auto;width:48px;height:48px;display:grid;place-items:center;border-radius:14px;background:linear-gradient(135deg,#a855f7,#c084fc 50%,#f472b6);font-weight:900;color:#fff">⚡</div>
+      </div>
+      <div class="eyebrow" style="text-align:center;color:#e9d5ff;font-size:.72rem;font-weight:800;letter-spacing:.12em">SECURE NODE ACCESS</div>
+      <h2>DC MONITOR</h2>
+      <p class="sub" id="loginSub">AUTHENTICATE TO INITIALIZE SESSION</p>
+      <div id="loginFormFields">
+        <label class="field"><span>ACCESS ID</span><input id="loginUser" placeholder="admin" /></label>
+        <label class="field"><span>SECURITY KEY</span><input id="loginPass" type="password" placeholder="••••••••" /></label>
+        <button class="btn btn-primary btn-block" id="loginBtn">INITIALIZE SESSION</button>
+      </div>
+      <div id="setupEnterWrap" class="hidden" style="text-align:center">
+        <p class="muted" style="margin:8px 0 16px;font-size:.85rem;line-height:1.6">اولین راه‌اندازی سیستم — هنوز کاربر ادمین ساخته نشده است.</p>
+        <button class="btn btn-primary btn-block" id="setupEnterBtn">ورود به راه‌اندازی</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- First-run setup popup -->
+  <div id="setupModal" class="setup-modal hidden">
+    <div class="setup-modal-backdrop"></div>
+    <div class="setup-modal-card" role="dialog" aria-label="راه‌اندازی اولیه">
+      <div class="setup-modal-glow"></div>
+      <div class="setup-modal-icon">🛡️</div>
+      <h2>راه‌اندازی اولیه</h2>
+      <p>برای شروع کار باید <b>کاربر ادمین</b> بسازید.<br>
+      بدون ادمین، ورودهای بعدی ممکن نیست.</p>
+      <ul class="setup-steps">
+        <li>به بخش <b>Users</b> بروید</li>
+        <li>نام کاربری و رمز قوی انتخاب کنید</li>
+        <li>نقش را روی <b>admin</b> بگذارید و ذخیره کنید</li>
+      </ul>
+      <button type="button" class="btn btn-primary btn-block" id="setupGoUsers">ساخت کاربر ادمین</button>
+      <button type="button" class="setup-later" id="setupLater">بعداً</button>
+    </div>
+  </div>
+
+  <div id="appView" class="app hidden">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-logo">⚡</div>
+        <div><h1>DC Monitor</h1><p>Infrastructure Control</p></div>
+      </div>
+      <div class="nav-sec">NOC</div>
+      <nav class="nav" id="nav">
+        <button data-page="dashboard" class="active"><span class="nav-ico">◈</span> Dashboard</button>
+
+        <div class="nav-group">
+          <button type="button" class="nav-sec-toggle">ASSETS <span class="nav-chevron">▾</span></button>
+          <div class="nav-group-body">
+            <button data-page="dcs" class="nav-sub"><span class="nav-ico">▣</span> Datacenters</button>
+            <button data-page="racks" class="nav-sub"><span class="nav-ico">▤</span> Racks</button>
+            <button data-page="devices" class="nav-sub"><span class="nav-ico">▣</span> Devices</button>
+            <button data-page="rackview" class="nav-sub"><span class="nav-ico">▦</span> Rack Detail View</button>
+          </div>
+        </div>
+
+        <div class="nav-group">
+          <button type="button" class="nav-sec-toggle">PLACEMENT <span class="nav-chevron">▾</span></button>
+          <div class="nav-group-body">
+            <button data-page="placements" class="nav-sub"><span class="nav-ico">◎</span> Rack Placement</button>
+          </div>
+        </div>
+
+        <div class="nav-group">
+          <button type="button" class="nav-sec-toggle">TOPOLOGY <span class="nav-chevron">▾</span></button>
+          <div class="nav-group-body">
+            <button data-page="topology" class="nav-sub"><span class="nav-ico">⬡</span> Connection Topology</button>
+          </div>
+        </div>
+
+        <div class="nav-group">
+          <button type="button" class="nav-sec-toggle">ADMIN <span class="nav-chevron">▾</span></button>
+          <div class="nav-group-body">
+            <button data-page="storage" class="nav-sub"><span class="nav-ico">⛁</span> Storage</button>
+            <button data-page="users" class="nav-sub"><span class="nav-ico">◐</span> Users</button>
+          </div>
+        </div>
+      </nav>
+      <div class="sidebar-foot">
+        <div id="userChip">—</div>
+        <button class="btn btn-ghost btn-block" style="margin-top:8px" id="logoutBtn">خروج</button>
+      </div>
+    </aside>
+
+    <main class="main">
+      <section id="page-dashboard" class="page"></section>
+      <section id="page-dcs" class="page hidden"></section>
+      <section id="page-racks" class="page hidden"></section>
+      <section id="page-devices" class="page hidden"></section>
+      <section id="page-placements" class="page hidden"></section>
+      <section id="page-rackview" class="page hidden"></section>
+      <section id="page-dndPlace" class="page hidden"></section>
+      <section id="page-topology" class="page hidden"></section>
+      
+      <section id="page-monDevices" class="page hidden"></section>
+      <section id="page-monPerf" class="page hidden"></section>
+      <section id="page-monAlerts" class="page hidden"></section>
+      <section id="page-monTraps" class="page hidden"></section>
+      <section id="page-discovery" class="page hidden"></section>
+      <section id="page-addMon" class="page hidden"></section>
+      <section id="page-storage" class="page hidden"></section>
+      <section id="page-users" class="page hidden"></section>
+      <section id="page-bale" class="page hidden"></section>
+    </main>
+  </div>
+
+  <div class="toast" id="toast"></div>
+  <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+  <!-- topology uses custom SVG elevation; vis-network not required -->
+  <script src="/static/js/app.js"></script>
+
+  <!-- Welcome splash -->
+  <div id="welcomeOverlay" class="welcome-overlay hidden">
+    <div class="welcome-orbs" aria-hidden="true">
+      <i class="orb o1"></i><i class="orb o2"></i><i class="orb o3"></i><i class="orb o4"></i>
+    </div>
+    <div class="welcome-card">
+      <div class="welcome-badge">⚡ SDMP · DATA CENTER DIGITAL TWIN</div>
+      <h1 class="welcome-title">Welcome to the<br/><span>Data Center Control Layer</span></h1>
+      <p class="welcome-sub">
+        Inventory intelligence · Rack visualization · Connectivity topology<br/>
+        Placement studio · Operational awareness · High-density infrastructure control
+      </p>
+      <div class="welcome-pills">
+        <button type="button" class="welcome-pill" data-go="racks">Rack Intelligence</button>
+        <button type="button" class="welcome-pill" data-go="topology">Topology Mapping</button>
+        <button type="button" class="welcome-pill" data-go="placements">Placement Studio</button>
+      </div>
+      <div class="welcome-bar"><i id="welcomeBarFill"></i></div>
+      <div class="welcome-status"><span class="welcome-dot"></span> <span id="welcomeStatusText">Initializing control modules…</span></div>
+      <div class="welcome-foot">
+        SDMP / DATA CENTER DIGITAL TWIN / OPERATIONAL CONTROL SURFACE<br/>
+        SYSTEM VERSION 2.0-PRO · DESIGNED BY M-KH
+      </div>
+      <button type="button" class="btn btn-primary welcome-enter" id="welcomeEnter">ورود به کنترل‌پنل</button>
+    </div>
+    <div class="welcome-toast" id="welcomeToast">⚡ Access Granted</div>
+  </div>
+
+  <!-- Help guide -->
+  <div class="fab-stack is-closed" id="fabStack">
+    <button type="button" id="fabToggle" class="fab-toggle" title="باز/بسته" aria-label="toggle shortcuts">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M9 6l6 6-6 6"/></svg>
+    </button>
+    <div class="fab-items" id="fabItems">
+      <button type="button" id="aiFab" class="ai-fab" title="دستیار هوشمند">🤖</button>
+      <button type="button" id="helpFab" class="help-fab" title="راهنما">?</button>
+      <button type="button" id="userFab" class="user-fab" title="کاربر">👤</button>
+      <button type="button" id="aboutFab" class="about-fab" title="About">!</button>
+    </div>
+  </div>
+
+  <div id="userPopover" class="user-popover hidden">
+    <div class="user-pop-title">Active Session</div>
+    <div class="user-pop-row"><span>User</span><b id="userPopName">—</b></div>
+    <div class="user-pop-row"><span>Role</span><b id="userPopRole">—</b></div>
+    <div class="user-pop-row"><span>Uptime</span><b id="userPopUptime">—</b></div>
+  </div>
+
+  <div id="aboutModal" class="about-modal hidden">
+    <div class="about-backdrop" data-about-close></div>
+    <div class="about-card">
+      <button type="button" class="about-close" data-about-close>✕</button>
+      <div class="about-orbs" aria-hidden="true"><i></i><i></i><i></i></div>
+      <div class="about-badge">⚡ SDMP · POWER GRID DIGITAL TWIN</div>
+      <h2 class="about-title">Data Center Control Layer</h2>
+      <p class="about-lead">
+        A colorful operational surface for high-density infrastructure —
+        inventory intelligence, rack elevation, placement studio, connectivity topology,
+        and live monitoring in one control plane.
+      </p>
+      <div class="about-grid">
+        <div class="about-chip">Rack Intelligence</div>
+        <div class="about-chip">Topology Mapping</div>
+        <div class="about-chip">Placement Studio</div>
+        <div class="about-chip">NOC Awareness</div>
+      </div>
+      <div class="about-divider"></div>
+      <div class="about-author">
+        <div class="about-author-label">Designed &amp; built by</div>
+        <div class="about-author-name">Mahdi Khajevand</div>
+        <div class="about-links">
+          <a href="https://www.linkedin.com/in/mahdi-khajevand-0658602a8/?isSelfProfile=true" target="_blank" rel="noopener">LinkedIn</a>
+          <a href="mailto:mehdikhajevand724@gmail.com">mehdikhajevand724@gmail.com</a>
+        </div>
+      </div>
+      <div class="about-foot">SYSTEM VERSION 2.0-PRO · OPERATIONAL CONTROL SURFACE</div>
+    </div>
+  </div>
+
+  <div id="helpModal" class="help-modal hidden">
+    <div class="help-backdrop" data-help-close></div>
+    <div class="help-sheet">
+      <div class="help-head">
+        <h2>راهنمای تصویری DC Monitor</h2>
+        <button type="button" class="btn btn-ghost btn-sm" data-help-close>✕</button>
+      </div>
+      <div class="help-steps" id="helpSteps"></div>
+      <div class="help-nav">
+        <button type="button" class="btn btn-ghost" id="helpPrev" onclick="window.__dcHelpPrev && window.__dcHelpPrev(event)">قبلی</button>
+        <div class="help-dots" id="helpDots"></div>
+        <button type="button" class="btn btn-primary" id="helpNext" onclick="window.__dcHelpNext && window.__dcHelpNext(event)">بعدی</button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- AI / Guided Assistant Popup -->
+  <div id="aiChatModal" class="ai-chat-modal hidden">
+    <div class="ai-chat-backdrop" data-ai-close></div>
+    <div class="ai-chat-panel" role="dialog" aria-label="دستیار دیتاسنتر">
+      <div class="ai-chat-head">
+        <div class="ai-chat-brand">
+          <span class="ai-chat-avatar" id="aiChatAvatar">🤖</span>
+          <div>
+            <div class="ai-chat-title" id="aiChatTitle">دستیار هوشمند</div>
+            <div class="ai-chat-sub" id="aiChatSub">اتصالات و دستگاه‌های دیتاسنتر</div>
+          </div>
+        </div>
+        <div class="ai-chat-actions">
+          <div class="ai-mode-toggle" id="aiModeToggle" title="تغییر حالت">
+            <button type="button" class="ai-mode-btn active" data-mode="ai" id="aiModeAI">🤖 AI</button>
+            <button type="button" class="ai-mode-btn" data-mode="guided" id="aiModeGuided">📋 راهنما</button>
+          </div>
+          <button type="button" class="ai-chat-clear" id="aiChatClear" title="شروع مجدد / پاک کردن">🗑️</button>
+          <button type="button" class="ai-chat-close" data-ai-close title="بستن">✕</button>
+        </div>
+      </div>
+      <div class="ai-chat-messages" id="aiChatMessages">
+        <!-- filled by JS -->
+      </div>
+      <div class="ai-chat-input-wrap" id="aiInputWrap">
+        <textarea id="aiChatInput" rows="1" placeholder="سؤالت رو بپرس..." dir="rtl"></textarea>
+        <button type="button" id="aiChatSend" class="ai-chat-send" title="ارسال">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
+      </div>
+      <div class="ai-guided-footer hidden" id="aiGuidedFooter">
+        <button type="button" class="ai-guided-back" id="aiGuidedBack">← بازگشت</button>
+        <span class="ai-guided-hint" id="aiGuidedHint">یکی از گزینه‌ها را انتخاب کنید</span>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>

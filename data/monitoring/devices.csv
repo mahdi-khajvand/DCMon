@@ -1,0 +1,1 @@
+monitoring_device_id,inventory_device_id,display_name,host,vendor,model,datacenter_id,network_ports,template_id,credential_id,poll_mode,enabled,inventory_present,last_poll_at,last_poll_status,last_error,created_at

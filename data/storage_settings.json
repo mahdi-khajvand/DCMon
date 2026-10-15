@@ -1,0 +1,11 @@
+{
+  "mode": "csv",
+  "host": "localhost",
+  "port": 5432,
+  "user": "postgres",
+  "password": "",
+  "database": "datacenter-monitoring",
+  "connected": false,
+  "last_error": "",
+  "last_ok": ""
+}

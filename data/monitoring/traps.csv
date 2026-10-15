@@ -1,0 +1,1 @@
+trap_id,monitoring_device_id,device_name,source_address,snmp_version,enterprise_oid,trap_oid,severity,message,varbinds_json,status,received_at,acknowledged_at,acknowledged_by

@@ -1,0 +1,1 @@
+alert_id,dedupe_key,monitoring_device_id,device_name,metric_name,severity,status,value,threshold,message,first_seen_at,last_seen_at,acknowledged_at,acknowledged_by,resolved_at

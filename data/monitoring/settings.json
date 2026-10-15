@@ -1,0 +1,9 @@
+{
+  "default_poll_interval_seconds": 300,
+  "default_timeout_seconds": 2,
+  "default_retries": 1,
+  "metric_retention_days": 90,
+  "demo_telemetry_enabled": true,
+  "trap_listener_host": "0.0.0.0",
+  "trap_listener_port": 162
+}

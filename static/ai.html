@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>دستیار هوشمند | DC Monitor</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <style>
+    * { font-family: Vazirmatn, system-ui, sans-serif; }
+    body { background: #0b0f19; color: #e2e8f0; min-height: 100vh; }
+    .bubble-user { background: linear-gradient(135deg,#0ea5e9,#6366f1); border-radius: 16px 16px 4px 16px; }
+    .bubble-bot { background: #1e293b; border: 1px solid #334155; border-radius: 16px 16px 16px 4px; }
+    .bubble-bot pre { direction: ltr; text-align: left; background: #0f172a; padding: 12px; border-radius: 8px; overflow-x: auto; }
+    .bubble-bot code { font-family: ui-monospace, monospace; font-size: 0.85em; }
+  </style>
+</head>
+<body class="flex flex-col h-screen">
+  <header class="border-b border-slate-800 px-4 py-3 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <a href="/" class="text-slate-400 hover:text-white text-sm">← بازگشت به پنل</a>
+      <h1 class="font-bold text-lg">🤖 دستیار هوشمند دیتاسنتر</h1>
+    </div>
+    <div class="flex items-center gap-3">
+      <button id="clearBtn" class="text-xs px-3 py-1.5 rounded-lg bg-slate-800 border border-slate-700 hover:bg-slate-700 text-slate-300">🗑️ پاک کردن تاریخچه</button>
+      <span class="text-xs text-slate-500" id="modelLabel">Ollama</span>
+    </div>
+  </header>
+
+  <div id="chat" class="flex-1 overflow-y-auto p-4 space-y-4 max-w-4xl w-full mx-auto"></div>
+
+  <div class="border-t border-slate-800 p-4">
+    <div class="max-w-4xl mx-auto flex gap-2">
+      <textarea id="input" rows="2" placeholder="مثلاً: دیوایس 1004 به چه چیزهایی وصل است؟ / دیوایس‌های رک MOKHABERAT چیست؟"
+        class="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-sky-500 resize-none"
+        onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();send()}"></textarea>
+      <button onclick="send()" class="bg-sky-600 hover:bg-sky-500 px-5 rounded-xl font-medium text-sm">ارسال</button>
+    </div>
+    <p class="text-center text-xs text-slate-600 mt-2">برای استفاده باید لاگین کرده باشید (همان توکن پنل)</p>
+  </div>
+
+<script>
+const token = localStorage.getItem('dc_token') || localStorage.getItem('token') || '';
+let history = [];
+
+function add(role, html) {
+  const box = document.getElementById('chat');
+  const div = document.createElement('div');
+  div.className = 'flex ' + (role === 'user' ? 'justify-end' : 'justify-start');
+  div.innerHTML = `<div class="${role==='user'?'bubble-user':'bubble-bot'} px-4 py-3 max-w-[85%] text-sm leading-7">${html}</div>`;
+  box.appendChild(div);
+  box.scrollTop = box.scrollHeight;
+}
+
+async function send() {
+  const input = document.getElementById('input');
+  const msg = input.value.trim();
+  if (!msg) return;
+  input.value = '';
+  add('user', msg.replace(/</g,'&lt;'));
+  history.push({ role: 'user', content: msg });
+  add('bot', '...');
+  const bubbles = document.querySelectorAll('.bubble-bot');
+  const last = bubbles[bubbles.length - 1];
+
+  try {
+    const res = await fetch('/api/ai/chat', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { 'Authorization': 'Bearer ' + token } : {})
+      },
+      body: JSON.stringify({ message: msg, history: history.slice(0, -1) })
+    });
+    if (res.status === 401) {
+      last.innerHTML = 'لطفاً ابتدا از پنل اصلی لاگین کنید و دوباره این صفحه را باز کنید.';
+      return;
+    }
+    const data = await res.json();
+    const answer = data.answer || JSON.stringify(data);
+    last.innerHTML = marked.parse(answer);
+    history.push({ role: 'assistant', content: answer });
+    if (data.model) document.getElementById('modelLabel').textContent = data.model;
+  } catch (e) {
+    last.innerHTML = 'خطا: ' + e.message;
+  }
+}
+
+// welcome
+const WELCOME = 'سلام! من دستیار دیتاسنتر هستم.<br>می‌توانی بپرسی:<br>• دیوایس <b>1004</b> به چه چیزهایی وصل است؟<br>• دیوایس‌های رک <b>MOKHABERAT</b> چیست؟<br>• لیست رک‌ها را بگو';
+add('bot', WELCOME);
+
+document.getElementById('clearBtn').onclick = function() {
+  history = [];
+  document.getElementById('chat').innerHTML = '';
+  add('bot', WELCOME);
+};
+</script>
+</body>
+</html>
